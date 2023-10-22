@@ -53,6 +53,11 @@ void Application::Render()
 
 void Application::Tick(float deltaTime)
 {
+	if (ViewPort.IsWindowHovered() && mouseRightPressed)
+	{
+		pen.Apply(ViewPort.GetTexture(), ViewPort, static_cast<float>(lastX), static_cast<float>(lastY));
+		ImGui::SetWindowFocus(ViewPort.GetGuiName());
+	}
 	ViewPort.Tick(deltaTime);
 }
 
@@ -124,11 +129,24 @@ void Application::MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCap
 				ViewPort.StopPanning();
 			}
 		}
+		return;
+	}
+	if (button == GLFW_MOUSE_BUTTON_LEFT)
+	{
+		if(action == GLFW_PRESS)
+		{
+			mouseRightPressed = true;
+		}
+		if(action == GLFW_RELEASE)
+		{
+			mouseRightPressed = false;
+		}
 	}
 }
 
 void Application::MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xPos, double yPos)
 {
+	//TODO: Replace that with Imgui::MousePos
 	lastX = xPos;
 	lastY = yPos;
 	if(ViewPort.IsPanning())

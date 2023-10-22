@@ -33,6 +33,10 @@ public:
 
     bool IsPanning() const;
 
+    bool ScreenToTexture(const float x, const float y, float& outX, float& outY);
+
+    Texture& GetTexture();
+
 private:
     const char* guiName = "Viewport";
     Texture texture;
@@ -41,6 +45,7 @@ private:
     Shader* shader;
     ImVec2 lastSize = ImVec2(0,0);
     bool isWindowHovered = false;
+    ImVec2 viewPortPos = ImVec2(0,0);
 
     // Panning
     bool isPanning = false;
@@ -54,4 +59,8 @@ private:
     float targetZoom = 1.0f;
 
     void LoadTexture();
+
+    void GetVertexScale(float& x, float& y);
+
+    void GetVertexOffset(float& x, float& y);
 };

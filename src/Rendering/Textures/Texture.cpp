@@ -18,12 +18,6 @@ void Texture::CreateBlankTexture(int inWidth, int inHeight, GLenum inFormat)
     {
         data[i] = 255;
     }
-
-    for (int i = 0; i < dataSize; i+=3)
-    {
-        std::cout << i/3 << ": (" << (int)data[i] << ", " << (int)data[i+1] << ", "  << (int)data[i+2] <<")"<< std::endl;
-    }
-
     format = inFormat;
     width = inWidth;
     height = inHeight;
@@ -33,11 +27,11 @@ void Texture::CreateBlankTexture(int inWidth, int inHeight, GLenum inFormat)
 
 void Texture::EditPixel(int inX, int inY, unsigned char color[3], unsigned char alpha)
 {
-    //if (inX < 0 || inX >= width || inY < 0 || inY >= height)
-    //{
-    //    std::cerr << "Pixel out of bounds" << std::endl;
-    //    return;
-    //}
+    if (inX < 0 || inX >= width || inY < 0 || inY >= height)
+    {
+        std::cerr << "Pixel out of bounds" << std::endl;
+        return;
+    }
     unsigned int pixelSize = format == GL_RGB ? 3 : 4;
     data[(inX + inY * width) * (pixelSize)] = color[0];
     data[(inX + inY * width) * (pixelSize) + 1] = color[1];

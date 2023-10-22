@@ -8,6 +8,8 @@
 #include <glm/vec2.hpp>
 
 #include <stb_image.h>
+
+#include "imgui_impl_opengl3_loader.h"
 #include "../Rendering/shader_s.h"
 
 #include "../Helpers/UsefullFunc.h"
@@ -57,7 +59,7 @@ void ViewPort::Init()
     glEnableVertexAttribArray(1);
 
     LoadTexture();
-    texture.CreateBlankTexture(10, 5, GL_RGB);
+    texture.CreateBlankTexture(100, 50, GL_RGB);
     texture.GenerateOpenGlTexture();
     texture.SendDataToOpenGl();
 }
@@ -91,11 +93,11 @@ void ViewPort::RenderViewPort()
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture.GetTextureId());
     shader->use();
-    float ratio = lastSize.x / lastSize.y;
-    float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
-    shader->setVec2("scale", 1 * zoom * textureRatio, zoom * ratio);
-    float correctedOffsetX = (-(offset.x + panOffset.x)) / (lastSize.x / 2);
-    float correctedOffsetY = (offset.y + panOffset.y) / (lastSize.y / 2);
+    float correctedScaleX, correctedScaleY;
+    GetVertexScale(correctedScaleX, correctedScaleY);
+    shader->setVec2("scale", correctedScaleX,correctedScaleY);
+    float correctedOffsetX, correctedOffsetY;
+    GetVertexOffset(correctedOffsetX, correctedOffsetY);
     shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
     shader->setFloat("time", glfwGetTime());
     
@@ -117,9 +119,22 @@ void ViewPort::RenderUI()
     {
         lastSize = windowSize;
     }
+    ImVec2 cursorPos = ImGui::GetCursorPos();
+    ImVec2 windowPos = ImGui::GetWindowPos();
+    viewPortPos = ImVec2(cursorPos.x + windowPos.x, cursorPos.y + windowPos.y);
+    ImVec2 mousePos = ImGui::GetMousePos();
+    ImVec2 texturePos;
+    ScreenToTexture(mousePos.x, mousePos.y, texturePos.x, texturePos.y);
+
+    //TODO: Erase this
     ImGui::Image((ImTextureID)viewPortTexture, windowSize , ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
     ImGui::PopStyleVar();
+    ImGui ::Begin("help tool");
+    ImGui::Text("MousePos: %f %f", mousePos.x, mousePos.y);
+    ImGui::Text("ViewPortPos: %f %f", viewPortPos.x, viewPortPos.y);
+    ImGui::Text("TexturePos: %f %f", texturePos.x, texturePos.y);
+    ImGui::End();
 }
 
 void ViewPort::Tick(float deltaTime)
@@ -187,8 +202,47 @@ bool ViewPort::IsPanning() const
     return isPanning;
 }
 
+bool ViewPort::ScreenToTexture(const float x, const float y, float& outX, float& outY)
+{
+    ImVec2 mouseLocalPos = ImVec2(x - viewPortPos.x, y - viewPortPos.y);
+    ImVec2 mouseLocalPosNormalized = ImVec2(mouseLocalPos.x / lastSize.x, mouseLocalPos.y / lastSize.y);
+    ImVec2 mouseLocalPosNormalizedCentered = ImVec2(mouseLocalPosNormalized.x * 2.0f - 1.0f, mouseLocalPosNormalized.y * -2.0f + 1.0f);
+    float correctedScaleX, correctedScaleY;
+    GetVertexScale(correctedScaleX, correctedScaleY);
+    float correctedOffsetX, correctedOffsetY;
+    GetVertexOffset(correctedOffsetX, correctedOffsetY);
+    ImVec2 mouseTexturePos = ImVec2((mouseLocalPosNormalizedCentered.x - correctedOffsetX) / correctedScaleX +0.5f ,0.5f - (mouseLocalPosNormalizedCentered.y- correctedOffsetY) / correctedScaleY);
+    outX = mouseTexturePos.x;
+    outY = mouseTexturePos.y;
+
+    if(outX < 0.0f || outX > 1.0f || outY < 0.0f || outY > 1.0f)
+    {
+        return false;
+    }
+    
+    return true;
+}
+
+Texture& ViewPort::GetTexture()
+{
+    return texture;
+}
 
 void ViewPort::LoadTexture()
 {
     canvasTexture = loadTexture("src/testcoloris.jpg");
+}
+
+void ViewPort::GetVertexScale(float& x, float& y)
+{
+    float ratio = lastSize.x / lastSize.y;
+    float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
+    x = zoom * textureRatio;
+    y = zoom * ratio;
+}
+
+void ViewPort::GetVertexOffset(float& x, float& y)
+{
+    x = (-(offset.x + panOffset.x)) / (lastSize.x / 2);
+    y = (offset.y + panOffset.y) / (lastSize.y / 2);
 }
