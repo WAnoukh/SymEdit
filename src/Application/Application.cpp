@@ -44,7 +44,10 @@ void Application::Render()
 	ImGui::Begin("Tools");
 	ImGui::Text("This is some useful text.");
 	ImGui::End();
+	
 	ViewPort.RenderUI();
+	pen.RenderUI();
+	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
 	
@@ -56,6 +59,7 @@ void Application::Tick(float deltaTime)
 	if (ViewPort.IsWindowHovered() && mouseRightPressed)
 	{
 		pen.Apply(ViewPort.GetTexture(), ViewPort, static_cast<float>(lastX), static_cast<float>(lastY));
+		pen.SetInterpolate(true);
 		ImGui::SetWindowFocus(ViewPort.GetGuiName());
 	}
 	ViewPort.Tick(deltaTime);
@@ -140,6 +144,7 @@ void Application::MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCap
 		if(action == GLFW_RELEASE)
 		{
 			mouseRightPressed = false;
+			pen.SetInterpolate(false);
 		}
 	}
 }
