@@ -11,9 +11,11 @@ public:
     ~ViewPort();
 
     void Init();
-    void PreViewPortRender();
-    void ViewPortRender();
+    void PreRenderViewPort();
+    void RenderViewPort();
     void RenderUI();
+
+    void Tick(float deltaTime);
 
     void SetZoom(float inZoom);
     float GetZoom();
@@ -21,6 +23,14 @@ public:
     bool IsWindowHovered();
 
     const char* GetGuiName();
+
+    void StartPanning(const float x, const float y);
+
+    void SetPanOffset(const float x, const float y);
+
+    void StopPanning(bool savePan = true);
+
+    bool IsPanning() const;
 
 private:
     const char* guiName = "Viewport";
@@ -30,7 +40,16 @@ private:
     ImVec2 lastSize = ImVec2(0,0);
     bool isWindowHovered = false;
 
+    // Panning
+    bool isPanning = false;
+    ImVec2 startPan = ImVec2(0.0f,0.0f);
+    ImVec2 offset = ImVec2(0.0f,0.0f);
+    ImVec2 panOffset= ImVec2(0.0f,0.0f);
+    ImVec2 targetPanOffset = ImVec2(0.0f,0.0f);
+
+    // Zoom
     float zoom = 1.0f;
+    float targetZoom = 1.0f;
 
     void LoadTexture();
 };

@@ -5,9 +5,6 @@
 #include "imgui_impl_opengl3.h"
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height){
-    glViewport(0, 0, width, height);
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-    glRenderbufferStorage(GL_RENDERBUFFER, GL_DEPTH24_STENCIL8, width, height);
     Application::GetInstance().AskForLayoutRefresh();
 }
 
@@ -15,6 +12,18 @@ void scroll_callback(GLFWwindow* window, double xoffset, double yoffset)
 {    
     ImGuiIO& io = ImGui::GetIO();
     Application::GetInstance().ScrollCallBackEvent(window, io.WantCaptureMouse, xoffset, yoffset);
+}
+
+void mouse_position_callback(GLFWwindow* window, double xpos, double ypos)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    Application::GetInstance().MousePositionCallBackEvent(window, io.WantCaptureMouse, xpos, ypos);
+}
+
+void mouse_button_callback(GLFWwindow* window, int button, int action, int mods)
+{
+    ImGuiIO& io = ImGui::GetIO();
+    Application::GetInstance().MouseButtonCallBackEvent(window, io.WantCaptureMouse, button, action, mods);
 }
 
 int Window::init() {
@@ -41,6 +50,8 @@ int Window::init() {
     glfwMakeContextCurrent(window);
     glfwSetFramebufferSizeCallback(window, framebuffer_size_callback);
     glfwSetScrollCallback(window, scroll_callback);
+    glfwSetMouseButtonCallback(window, mouse_button_callback);
+    glfwSetCursorPosCallback(window, mouse_position_callback);
 
     // glad: load all OpenGL function pointers
     // ---------------------------------------
@@ -60,7 +71,7 @@ int Window::init() {
     ImGui_ImplGlfw_InitForOpenGL(window,true);
     ImGui_ImplOpenGL3_Init("#version 330 core");
     io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-    io.ConfigDockingWithShift = true;
+    io.ConfigDockingWithShift = false;
         
     // glfw: terminate, clearing all previously allocated GLFW resources.
     // ------------------------------------------------------------------
@@ -69,9 +80,6 @@ int Window::init() {
 
 void Window::PreRender() const
 {
-    int display_w, display_h;
-    glfwGetFramebufferSize(window, &display_w, &display_h);
-    glViewport(0, 0, display_w, display_h);
     glClearColor(0.45f, 0.55f, 0.60f, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
 }

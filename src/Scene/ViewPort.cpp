@@ -1,12 +1,16 @@
 ﻿#include "ViewPort.h"
+#include <glad/glad.h>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
-#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+#include <glm/vec2.hpp>
 
-#include "../Rendering/shader_s.h"
 #include <stb_image.h>
+#include "../Rendering/shader_s.h"
+
+#include "../Helpers/UsefullFunc.h"
 #include "../Rendering/TextureLoader.h"
 
 ViewPort::ViewPort()
@@ -53,9 +57,11 @@ void ViewPort::Init()
     // texture coord attribute
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
+
+    LoadTexture();
 }
 
-void ViewPort::PreViewPortRender()
+void ViewPort::PreRenderViewPort()
 {
     glBindFramebuffer(GL_FRAMEBUFFER, FBO);
     
@@ -74,16 +80,20 @@ void ViewPort::PreViewPortRender()
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, viewPortTexture, 0);
 }
 
-void ViewPort::ViewPortRender()
+void ViewPort::RenderViewPort()
 {
-    PreViewPortRender();
-    LoadTexture();
+    PreRenderViewPort();
     
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, canvasTexture);
     shader->use();
-    shader->setVec2("scale", 1 * zoom, zoom * lastSize.x/lastSize.y);
+    float ratio = lastSize.x / lastSize.y;
+    shader->setVec2("scale", 1 * zoom, zoom * ratio);
+    float correctedOffsetX = (-(offset.x + panOffset.x)) / (lastSize.x / 2);
+    float correctedOffsetY = (offset.y + panOffset.y) / (lastSize.y / 2);
+    shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
+    shader->setFloat("time", glfwGetTime());
     
     glClearColor(0.20784313725490197f, 0.1843137254901961f, 0.26666666666666666, 1.00f);
     glClear(GL_COLOR_BUFFER_BIT);
@@ -102,17 +112,28 @@ void ViewPort::RenderUI()
     if(windowSize.x != lastSize.x || windowSize.y != lastSize.y)
     {
         lastSize = windowSize;
-        ViewPortRender();
     }
     ImGui::Image((ImTextureID)viewPortTexture, windowSize , ImVec2(0, 1), ImVec2(1, 0));
     ImGui::End();
     ImGui::PopStyleVar();
 }
 
+void ViewPort::Tick(float deltaTime)
+{
+    if (abs(targetZoom - zoom) > 0.001f)
+    {
+        zoom = AnoukhFun::Damp(zoom, targetZoom, 0.0f, deltaTime);
+    }
+    const glm::vec2 vPanOffset = glm::vec2(panOffset.x, panOffset.y);
+    const glm::vec2 vTargetPanOffset = glm::vec2(targetPanOffset.x, targetPanOffset.y);
+    const auto newOffset = AnoukhFun::Damp<glm::vec2>( vPanOffset , vTargetPanOffset, 0.00000001f, deltaTime);
+    panOffset = ImVec2(targetPanOffset.x, targetPanOffset.y);
+    RenderViewPort();
+}
+
 void ViewPort::SetZoom(float inZoom)
 {
-    zoom = inZoom;
-    ViewPortRender();
+    targetZoom = inZoom;
 }
 
 float ViewPort::GetZoom()
@@ -129,6 +150,38 @@ const char* ViewPort::GetGuiName()
 {
     return guiName; 
 }
+
+void ViewPort::StartPanning(const float x, const float y)
+{
+    startPan = ImVec2(x,y);
+    targetPanOffset= ImVec2(0.0f,0.0f);
+    isPanning = true;
+}
+
+void ViewPort::SetPanOffset(const float x, const float y)
+{
+    if(isPanning)
+    {
+        targetPanOffset = ImVec2(startPan.x - x,startPan.y - y);
+    }
+}
+
+void ViewPort::StopPanning(bool savePan)
+{
+    isPanning = false;
+    if (savePan)
+    {
+        offset = ImVec2(offset.x + targetPanOffset.x, offset.y + targetPanOffset.y);
+    }
+    panOffset = ImVec2(panOffset.x - targetPanOffset.x,panOffset.y- targetPanOffset.y);
+    targetPanOffset = ImVec2(0.0f,0.0f);
+}
+
+bool ViewPort::IsPanning() const
+{
+    return isPanning;
+}
+
 
 void ViewPort::LoadTexture()
 {
