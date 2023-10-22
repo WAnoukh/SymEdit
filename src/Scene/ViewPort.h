@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include "../../third_parties/imgui/imgui.h"
+#include "../Rendering/Textures/Texture.h"
 
 class Shader;
 
@@ -34,6 +35,7 @@ public:
 
 private:
     const char* guiName = "Viewport";
+    Texture texture;
     unsigned int viewPortTexture, canvasTexture;
     unsigned int VBO, VAO, EBO, FBO;
     Shader* shader;

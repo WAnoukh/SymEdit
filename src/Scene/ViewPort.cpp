@@ -13,9 +13,7 @@
 #include "../Helpers/UsefullFunc.h"
 #include "../Rendering/TextureLoader.h"
 
-ViewPort::ViewPort()
-{
-}
+ViewPort::ViewPort()= default;
 
 ViewPort::~ViewPort()
 {
@@ -29,10 +27,10 @@ void ViewPort::Init()
     glGenTextures(1, &viewPortTexture);
     float vertices[] = {
         // positions        // uv coord
-        0.5f,  0.5f, 0.0f, 1.0f, 1.0f, // top right
-        0.5f, -0.5f, 0.0f, 1.0f, 0.0f, // bottom right
-       -0.5f, -0.5f, 0.0f, 0.0f, 0.0f, // bottom left
-       -0.5f,  0.5f, 0.0f, 0.0f, 1.0f  // top left 
+        0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, // top right
+        0.5f, 0.5f, 0.0f, 1.0f, 0.0f, // bottom right
+       -0.5f, 0.5f, 0.0f, 0.0f, 0.0f, // bottom left
+       -0.5f, -0.5f, 0.0f, 0.0f, 1.0f  // top left 
     };
     unsigned int indices[] = {
         0, 1, 3, // first triangle
@@ -59,6 +57,9 @@ void ViewPort::Init()
     glEnableVertexAttribArray(1);
 
     LoadTexture();
+    texture.CreateBlankTexture(10, 5, GL_RGB);
+    texture.GenerateOpenGlTexture();
+    texture.SendDataToOpenGl();
 }
 
 void ViewPort::PreRenderViewPort()
@@ -78,6 +79,8 @@ void ViewPort::PreRenderViewPort()
     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 
     glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, viewPortTexture, 0);
+
+    texture.SendDataToOpenGl();
 }
 
 void ViewPort::RenderViewPort()
@@ -86,10 +89,11 @@ void ViewPort::RenderViewPort()
     
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
-    glBindTexture(GL_TEXTURE_2D, canvasTexture);
+    glBindTexture(GL_TEXTURE_2D, texture.GetTextureId());
     shader->use();
     float ratio = lastSize.x / lastSize.y;
-    shader->setVec2("scale", 1 * zoom, zoom * ratio);
+    float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
+    shader->setVec2("scale", 1 * zoom * textureRatio, zoom * ratio);
     float correctedOffsetX = (-(offset.x + panOffset.x)) / (lastSize.x / 2);
     float correctedOffsetY = (offset.y + panOffset.y) / (lastSize.y / 2);
     shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
@@ -120,15 +124,16 @@ void ViewPort::RenderUI()
 
 void ViewPort::Tick(float deltaTime)
 {
-    if (abs(targetZoom - zoom) > 0.001f)
-    {
-        zoom = AnoukhFun::Damp(zoom, targetZoom, 0.0f, deltaTime);
-    }
+    zoom = AnoukhFun::Damp(zoom, targetZoom, 0.0f, deltaTime);
     const glm::vec2 vPanOffset = glm::vec2(panOffset.x, panOffset.y);
     const glm::vec2 vTargetPanOffset = glm::vec2(targetPanOffset.x, targetPanOffset.y);
     const auto newOffset = AnoukhFun::Damp<glm::vec2>( vPanOffset , vTargetPanOffset, 0.00000001f, deltaTime);
     panOffset = ImVec2(targetPanOffset.x, targetPanOffset.y);
     RenderViewPort();
+    unsigned char col[3] = {static_cast<unsigned char>(AnoukhFun::RandomInt(0,255)),
+        static_cast<unsigned char>(AnoukhFun::RandomInt(0,255)),
+        static_cast<unsigned char>(AnoukhFun::RandomInt(0,255))};
+    //texture.EditPixel(AnoukhFun::RandomInt(0, texture.GetWidth()-1), AnoukhFun::RandomInt(0, texture.GetHeight()-1), col );
 }
 
 void ViewPort::SetZoom(float inZoom)
@@ -185,5 +190,5 @@ bool ViewPort::IsPanning() const
 
 void ViewPort::LoadTexture()
 {
-    canvasTexture = loadTexture("src/wall.jpg");
+    canvasTexture = loadTexture("src/testcoloris.jpg");
 }
