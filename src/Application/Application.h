@@ -1,7 +1,8 @@
 #pragma once
 
 #include "Window.h"
-#include "../Scene/ViewPort.h"
+#include "..\Scene\Viewport\TextureEditor.h"
+#include "../Rendering/Textures/TextureDrawers/Pen.h"
 
 
 class Application
@@ -34,8 +35,10 @@ private:
 	const unsigned int INITIAL_SCR_HEIGHT = 1000;
 	int swapInterval = 0;
 	bool LayoutNeedRefresh = true;
+	bool mouseRightPressed = false;
 	Window Window;
-	ViewPort ViewPort;
+	TextureEditor textureEditor;
+	Pen pen;
 
 	double lastX = 0.0f;
 	double lastY = 0.0f;

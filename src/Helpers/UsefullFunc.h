@@ -16,4 +16,8 @@ namespace AnoukhFun
     {
         return Lerp(current, target, 1 - pow(smoothTime, deltaTime));
     }
+
+    int RandomInt(int min, int max);
+
+    float RandomFloat(float min, float max);
 }
