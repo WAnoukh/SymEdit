@@ -2,13 +2,14 @@
 
 #include <algorithm>
 
-#include "../../../Scene/ViewPort.h"
+#include "..\..\..\Scene\Viewport\TextureEditor.h"
 
-void Pen::Apply(Texture& texture, ViewPort& viewPort, float mouseX, float mouseY)
+void Pen::Apply(Texture& texture, TextureEditor& viewPort, float mouseX, float mouseY)
 {
     float pixelX, pixelY;
     int pixelXInt, pixelYInt;
-    if (viewPort.ScreenToTexture(mouseX, mouseY, pixelX, pixelY))
+    viewPort.ScreenToTexture(mouseX, mouseY, pixelX, pixelY);
+    if (true)
     {
         pixelX *= texture.GetWidth();
         pixelY *= texture.GetHeight();
@@ -20,7 +21,7 @@ void Pen::Apply(Texture& texture, ViewPort& viewPort, float mouseX, float mouseY
             {
                 for (int y = std::min(pixelYInt, lastPixelY); y <= std::max(pixelYInt, lastPixelY); y++)
                 {
-                    texture.EditPixel(pixelXInt, y, color, 255);
+                    Draw(pixelXInt,y,texture);
                 }
             }else
             {
@@ -47,9 +48,9 @@ void Pen::Apply(Texture& texture, ViewPort& viewPort, float mouseX, float mouseY
                     int newY = (x - minX) * a + minY;
                     for (int y = std::min(newY, lastDrawedY)+1; y < std::max(newY, lastDrawedY); y++)
                     {
-                        texture.EditPixel(x, y, color, 255);
+                        Draw(x,y,texture);
                     }
-                    texture.EditPixel(x, newY, color, 255);
+                    Draw(x,newY,texture);
                     lastDrawedY = newY;
                 }
             }
@@ -76,10 +77,26 @@ void Pen::RenderUI()
     color[0] = static_cast<unsigned char>(uiColor[0]);
     color[1] = static_cast<unsigned char>(uiColor[1]);
     color[2] = static_cast<unsigned char>(uiColor[2]);
+    ImGui::SliderInt("Size", &size, 1, 100);
     ImGui::End();
 }
 
 void Pen::SetInterpolate(bool inInterpolate)
 {
     interpolate = inInterpolate;
+}
+
+void Pen::Draw(int x, int y, Texture& texture)
+{
+    for(int i = -size; i < size; i++)
+    {
+        for(int j = -size; j < size; j++)
+        {
+            if(i*i + j*j < size*size)
+            {
+                texture.EditPixel(x+i, y+j, color, 255);
+            }
+        }
+    }
+    
 }

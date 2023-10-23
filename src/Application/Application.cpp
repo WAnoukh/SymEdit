@@ -36,7 +36,7 @@ void Application::Render()
 
 				auto dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.1f, nullptr, &dockspace_id);
 				ImGui::DockBuilderDockWindow("Tools", dock_id_top);
-				ImGui::DockBuilderDockWindow("Viewport", dockspace_id);
+				ImGui::DockBuilderDockWindow(textureEditor.GetGuiName(), dockspace_id);
 			}
 		}
 		LayoutNeedRefresh = false;
@@ -45,7 +45,7 @@ void Application::Render()
 	ImGui::Text("This is some useful text.");
 	ImGui::End();
 	
-	ViewPort.RenderUI();
+	textureEditor.RenderUI();
 	pen.RenderUI();
 	
 	ImGui::Render();
@@ -56,13 +56,13 @@ void Application::Render()
 
 void Application::Tick(float deltaTime)
 {
-	if (ViewPort.IsWindowHovered() && mouseRightPressed)
+	if (textureEditor.IsWindowHovered() && mouseRightPressed)
 	{
-		pen.Apply(ViewPort.GetTexture(), ViewPort, static_cast<float>(lastX), static_cast<float>(lastY));
+		pen.Apply(textureEditor.GetTexture(), textureEditor, static_cast<float>(lastX), static_cast<float>(lastY));
 		pen.SetInterpolate(true);
-		ImGui::SetWindowFocus(ViewPort.GetGuiName());
+		ImGui::SetWindowFocus(textureEditor.GetGuiName());
 	}
-	ViewPort.Tick(deltaTime);
+	textureEditor.Tick(deltaTime);
 }
 
 Application& Application::GetInstance()
@@ -75,7 +75,7 @@ Application& Application::GetInstance()
 }
 
 int Application::Run() {
-	ViewPort.Init();
+	textureEditor.Init();
 	float lastFrame = 0.0f;
 	
 	// render loop
@@ -107,10 +107,10 @@ void Application::AskForLayoutRefresh()
 
 void Application::ScrollCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xoffset, double yoffset)
 {
-	if (ViewPort.IsWindowHovered())
+	if (textureEditor.IsWindowHovered())
 	{
-		ViewPort.SetZoom(ViewPort.GetZoom()*(1 + yoffset*0.1));
-		ImGui::SetWindowFocus(ViewPort.GetGuiName());
+		textureEditor.SetZoom(textureEditor.GetZoom()*(1 + yoffset*0.1));
+		ImGui::SetWindowFocus(textureEditor.GetGuiName());
 	}
 }
 
@@ -120,17 +120,17 @@ void Application::MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCap
 	{
 		if(action == GLFW_PRESS)
 		{
-			if (ViewPort.IsWindowHovered() && !ViewPort.IsPanning())
+			if (textureEditor.IsWindowHovered() && !textureEditor.IsPanning())
 			{
-				ViewPort.StartPanning(static_cast<float>(lastX), static_cast<float>(lastY));
-				ImGui::SetWindowFocus(ViewPort.GetGuiName());
+				textureEditor.StartPanning(static_cast<float>(lastX), static_cast<float>(lastY));
+				ImGui::SetWindowFocus(textureEditor.GetGuiName());
 			}
 		}
 		else if(action == GLFW_RELEASE)
 		{
-			if(ViewPort.IsPanning())
+			if(textureEditor.IsPanning())
 			{
-				ViewPort.StopPanning();
+				textureEditor.StopPanning();
 			}
 		}
 		return;
@@ -154,9 +154,9 @@ void Application::MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToC
 	//TODO: Replace that with Imgui::MousePos
 	lastX = xPos;
 	lastY = yPos;
-	if(ViewPort.IsPanning())
+	if(textureEditor.IsPanning())
 	{
-		ViewPort.SetPanOffset(static_cast<float>(lastX), static_cast<float>(lastY));
-		ImGui::SetWindowFocus(ViewPort.GetGuiName());
+		textureEditor.SetPanOffset(static_cast<float>(lastX), static_cast<float>(lastY));
+		ImGui::SetWindowFocus(textureEditor.GetGuiName());
 	}
 }

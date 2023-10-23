@@ -1,29 +1,30 @@
 ﻿#pragma once
+#include "ViewPortBase.h"
 #include "../../third_parties/imgui/imgui.h"
-#include "../Rendering/Textures/Texture.h"
+#include "../../Rendering/Textures/Texture.h"
 
 class Shader;
 
 
-class ViewPort
+class TextureEditor : public ViewPortBase
 {
 public:
-    ViewPort();
-    ~ViewPort();
+    TextureEditor() { guiName = "TextureEditor"; }
 
-    void Init();
+    ~TextureEditor() override;
+
+    void Init() override;
     void PreRenderViewPort();
     void RenderViewPort();
-    void RenderUI();
+    void RenderUI() override;
 
-    void Tick(float deltaTime);
+    void Tick(float deltaTime) override;
 
     void SetZoom(float inZoom);
+    
     float GetZoom();
 
     bool IsWindowHovered();
-
-    const char* GetGuiName();
 
     void StartPanning(const float x, const float y);
 
@@ -33,19 +34,15 @@ public:
 
     bool IsPanning() const;
 
-    bool ScreenToTexture(const float x, const float y, float& outX, float& outY);
+    bool ScreenToTexture(const float x, const float y, float& outX, float& outY) override;
 
     Texture& GetTexture();
 
 private:
-    const char* guiName = "Viewport";
     Texture texture;
-    unsigned int viewPortTexture, canvasTexture;
-    unsigned int VBO, VAO, EBO, FBO;
+    unsigned int canvasTexture;
+    unsigned int VBO, EBO;
     Shader* shader;
-    ImVec2 lastSize = ImVec2(0,0);
-    bool isWindowHovered = false;
-    ImVec2 viewPortPos = ImVec2(0,0);
 
     // Panning
     bool isPanning = false;

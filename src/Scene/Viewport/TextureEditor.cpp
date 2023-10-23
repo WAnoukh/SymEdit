@@ -1,4 +1,4 @@
-﻿#include "ViewPort.h"
+﻿#include "TextureEditor.h"
 #include <glad/glad.h>
 #include "imgui.h"
 #include "imgui_impl_glfw.h"
@@ -10,20 +10,18 @@
 #include <stb_image.h>
 
 #include "imgui_impl_opengl3_loader.h"
-#include "../Rendering/shader_s.h"
+#include "../../Rendering/shader_s.h"
 
-#include "../Helpers/UsefullFunc.h"
-#include "../Rendering/TextureLoader.h"
+#include "../../Helpers/UsefullFunc.h"
+#include "../../Rendering/TextureLoader.h"
 
-ViewPort::ViewPort()= default;
-
-ViewPort::~ViewPort()
+TextureEditor::~TextureEditor()
 {
     glDeleteFramebuffers(1, &FBO);
     glDeleteTextures(1,&viewPortTexture);
 }
 
-void ViewPort::Init()
+void TextureEditor::Init()
 {
     glGenFramebuffers(1, &FBO);
     glGenTextures(1, &viewPortTexture);
@@ -59,33 +57,18 @@ void ViewPort::Init()
     glEnableVertexAttribArray(1);
 
     LoadTexture();
-    texture.CreateBlankTexture(100, 50, GL_RGB);
+    texture.CreateBlankTexture(700, 500, GL_RGB);
     texture.GenerateOpenGlTexture();
     texture.SendDataToOpenGl();
 }
 
-void ViewPort::PreRenderViewPort()
+void TextureEditor::PreRenderViewPort()
 {
-    glBindFramebuffer(GL_FRAMEBUFFER, FBO);
-    
-
-    int width = static_cast<int>(lastSize.x), height = static_cast<int>(lastSize.y);
-
-    glViewport(0, 0, width, height);
-    
-    glBindTexture(GL_TEXTURE_2D, viewPortTexture);
-  
-    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width , height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
-
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-
-    glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, viewPortTexture, 0);
-
+    ViewPortBase::PreRenderViewPort();
     texture.SendDataToOpenGl();
 }
 
-void ViewPort::RenderViewPort()
+void TextureEditor::RenderViewPort()
 {
     PreRenderViewPort();
     
@@ -100,44 +83,29 @@ void ViewPort::RenderViewPort()
     GetVertexOffset(correctedOffsetX, correctedOffsetY);
     shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
     shader->setFloat("time", glfwGetTime());
-    
-    glClearColor(0.20784313725490197f, 0.1843137254901961f, 0.26666666666666666, 1.00f);
-    glClear(GL_COLOR_BUFFER_BIT);
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }
 
-void ViewPort::RenderUI()
+void TextureEditor::RenderUI()
 {
-    // Set all margins to 0 for the ImGui window
-    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-    ImGui::Begin(guiName);
-    isWindowHovered = ImGui::IsWindowHovered();
-    ImVec2 windowSize = ImGui::GetContentRegionAvail();
-    if(windowSize.x != lastSize.x || windowSize.y != lastSize.y)
-    {
-        lastSize = windowSize;
-    }
+    ViewPortBase::RenderUI();
     ImVec2 cursorPos = ImGui::GetCursorPos();
     ImVec2 windowPos = ImGui::GetWindowPos();
-    viewPortPos = ImVec2(cursorPos.x + windowPos.x, cursorPos.y + windowPos.y);
     ImVec2 mousePos = ImGui::GetMousePos();
     ImVec2 texturePos;
     ScreenToTexture(mousePos.x, mousePos.y, texturePos.x, texturePos.y);
-
     //TODO: Erase this
-    ImGui::Image((ImTextureID)viewPortTexture, windowSize , ImVec2(0, 1), ImVec2(1, 0));
-    ImGui::End();
-    ImGui::PopStyleVar();
     ImGui ::Begin("help tool");
     ImGui::Text("MousePos: %f %f", mousePos.x, mousePos.y);
+    ImGui::Text("MousePosRelative: %f %f", mousePos.x - viewPortPos.x,mousePos.y - viewPortPos.y);
     ImGui::Text("ViewPortPos: %f %f", viewPortPos.x, viewPortPos.y);
     ImGui::Text("TexturePos: %f %f", texturePos.x, texturePos.y);
     ImGui::End();
 }
 
-void ViewPort::Tick(float deltaTime)
+void TextureEditor::Tick(float deltaTime)
 {
     zoom = AnoukhFun::Damp(zoom, targetZoom, 0.0f, deltaTime);
     const glm::vec2 vPanOffset = glm::vec2(panOffset.x, panOffset.y);
@@ -151,34 +119,29 @@ void ViewPort::Tick(float deltaTime)
     //texture.EditPixel(AnoukhFun::RandomInt(0, texture.GetWidth()-1), AnoukhFun::RandomInt(0, texture.GetHeight()-1), col );
 }
 
-void ViewPort::SetZoom(float inZoom)
+void TextureEditor::SetZoom(float inZoom)
 {
     targetZoom = inZoom;
 }
 
-float ViewPort::GetZoom()
+float TextureEditor::GetZoom()
 {
     return zoom;
 }
 
-bool ViewPort::IsWindowHovered()
+bool TextureEditor::IsWindowHovered()
 {
     return isWindowHovered;
 }
 
-const char* ViewPort::GetGuiName()
-{
-    return guiName; 
-}
-
-void ViewPort::StartPanning(const float x, const float y)
+void TextureEditor::StartPanning(const float x, const float y)
 {
     startPan = ImVec2(x,y);
     targetPanOffset= ImVec2(0.0f,0.0f);
     isPanning = true;
 }
 
-void ViewPort::SetPanOffset(const float x, const float y)
+void TextureEditor::SetPanOffset(const float x, const float y)
 {
     if(isPanning)
     {
@@ -186,7 +149,7 @@ void ViewPort::SetPanOffset(const float x, const float y)
     }
 }
 
-void ViewPort::StopPanning(bool savePan)
+void TextureEditor::StopPanning(bool savePan)
 {
     isPanning = false;
     if (savePan)
@@ -197,12 +160,12 @@ void ViewPort::StopPanning(bool savePan)
     targetPanOffset = ImVec2(0.0f,0.0f);
 }
 
-bool ViewPort::IsPanning() const
+bool TextureEditor::IsPanning() const
 {
     return isPanning;
 }
 
-bool ViewPort::ScreenToTexture(const float x, const float y, float& outX, float& outY)
+bool TextureEditor::ScreenToTexture(const float x, const float y, float& outX, float& outY)
 {
     ImVec2 mouseLocalPos = ImVec2(x - viewPortPos.x, y - viewPortPos.y);
     ImVec2 mouseLocalPosNormalized = ImVec2(mouseLocalPos.x / lastSize.x, mouseLocalPos.y / lastSize.y);
@@ -223,17 +186,17 @@ bool ViewPort::ScreenToTexture(const float x, const float y, float& outX, float&
     return true;
 }
 
-Texture& ViewPort::GetTexture()
+Texture& TextureEditor::GetTexture()
 {
     return texture;
 }
 
-void ViewPort::LoadTexture()
+void TextureEditor::LoadTexture()
 {
     canvasTexture = loadTexture("src/testcoloris.jpg");
 }
 
-void ViewPort::GetVertexScale(float& x, float& y)
+void TextureEditor::GetVertexScale(float& x, float& y)
 {
     float ratio = lastSize.x / lastSize.y;
     float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
@@ -241,7 +204,7 @@ void ViewPort::GetVertexScale(float& x, float& y)
     y = zoom * ratio;
 }
 
-void ViewPort::GetVertexOffset(float& x, float& y)
+void TextureEditor::GetVertexOffset(float& x, float& y)
 {
     x = (-(offset.x + panOffset.x)) / (lastSize.x / 2);
     y = (offset.y + panOffset.y) / (lastSize.y / 2);

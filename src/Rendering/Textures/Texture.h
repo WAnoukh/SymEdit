@@ -7,7 +7,7 @@ class Texture
 public:
     void CreateBlankTexture(int inWidth, int inHeight, GLenum inFormat);
 
-    void EditPixel(int inX, int inY, unsigned char color[3], unsigned char alpha = 255);
+    bool EditPixel(int inX, int inY, unsigned char color[3], unsigned char alpha = 255);
 
     void GenerateOpenGlTexture();
     void SendDataToOpenGl();

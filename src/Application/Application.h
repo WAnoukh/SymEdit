@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Window.h"
-#include "../Scene/ViewPort.h"
+#include "..\Scene\Viewport\TextureEditor.h"
 #include "../Rendering/Textures/TextureDrawers/Pen.h"
 
 
@@ -37,7 +37,7 @@ private:
 	bool LayoutNeedRefresh = true;
 	bool mouseRightPressed = false;
 	Window Window;
-	ViewPort ViewPort;
+	TextureEditor textureEditor;
 	Pen pen;
 
 	double lastX = 0.0f;
