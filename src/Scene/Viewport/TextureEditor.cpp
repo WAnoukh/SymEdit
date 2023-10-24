@@ -57,21 +57,15 @@ void TextureEditor::Init()
     glEnableVertexAttribArray(1);
 
     LoadTexture();
-    texture.CreateBlankTexture(700, 500, GL_RGB);
+    texture.CreateBlankTexture(1600, 1300, GL_RGB);
     texture.GenerateOpenGlTexture();
-    texture.SendDataToOpenGl();
-}
-
-void TextureEditor::PreRenderViewPort()
-{
-    ViewPortBase::PreRenderViewPort();
     texture.SendDataToOpenGl();
 }
 
 void TextureEditor::RenderViewPort()
 {
-    PreRenderViewPort();
-    
+    ViewPortBase::RenderViewPort();
+    texture.SendDataToOpenGl();
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
     glBindTexture(GL_TEXTURE_2D, texture.GetTextureId());

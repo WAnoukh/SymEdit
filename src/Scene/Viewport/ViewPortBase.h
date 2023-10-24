@@ -5,12 +5,16 @@
 class ViewPortBase
 {
 public:
-    ViewPortBase() : guiName("ViewportBase") {}
+    ViewPortBase() : guiName("ViewportBase")
+    {
+    }
+
     virtual ~ViewPortBase() {}
 
     virtual void Init() = 0;
     virtual void RenderUI();
-    virtual void PreRenderViewPort();
+    void PreRenderViewPort();
+    virtual void RenderViewPort();
 
     virtual void Tick(float deltaTime) = 0;
 
@@ -22,9 +26,9 @@ protected:
     const char* guiName;
     ImVec2 lastSize = ImVec2(0,0);
     ImVec2 viewPortPos = ImVec2(0,0);
-    unsigned int viewPortTexture;
-    unsigned int FBO;
-    unsigned int VAO;
+    unsigned int viewPortTexture = 0;
+    unsigned int FBO = 0;
+    unsigned int VAO = 0;
     
     bool isWindowHovered = false;
 };

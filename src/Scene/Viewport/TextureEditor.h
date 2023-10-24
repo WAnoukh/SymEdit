@@ -14,8 +14,7 @@ public:
     ~TextureEditor() override;
 
     void Init() override;
-    void PreRenderViewPort();
-    void RenderViewPort();
+    void RenderViewPort() override;
     void RenderUI() override;
 
     void Tick(float deltaTime) override;

@@ -43,6 +43,11 @@ void ViewPortBase::PreRenderViewPort()
     glClear(GL_COLOR_BUFFER_BIT);
 }
 
+void ViewPortBase::RenderViewPort()
+{
+    PreRenderViewPort();
+}
+
 const char* ViewPortBase::GetGuiName()
 {
     return guiName;
