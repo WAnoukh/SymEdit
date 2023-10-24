@@ -2,7 +2,7 @@
 
 #include <algorithm>
 
-#include "..\..\..\Scene\Viewport\TextureEditor.h"
+#include "..\..\..\Scene\Viewport\2DViewPort\TextureEditor.h"
 
 void Pen::Apply(Texture& texture, TextureEditor& viewPort, float mouseX, float mouseY)
 {

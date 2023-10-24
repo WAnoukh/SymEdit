@@ -5,15 +5,14 @@
 #include "imgui_impl_opengl3.h"
 #include "imgui_internal.h"
 #include <GLFW/glfw3.h>
-#include <glm/vec2.hpp>
 
 #include <stb_image.h>
 
 #include "imgui_impl_opengl3_loader.h"
-#include "../../Rendering/shader_s.h"
+#include "../../../Rendering/shader_s.h"
 
-#include "../../Helpers/UsefullFunc.h"
-#include "../../Rendering/TextureLoader.h"
+
+#include "../../../Rendering/TextureLoader.h"
 
 TextureEditor::~TextureEditor()
 {
@@ -99,64 +98,9 @@ void TextureEditor::RenderUI()
     ImGui::End();
 }
 
-void TextureEditor::Tick(float deltaTime)
-{
-    zoom = AnoukhFun::Damp(zoom, targetZoom, 0.0f, deltaTime);
-    const glm::vec2 vPanOffset = glm::vec2(panOffset.x, panOffset.y);
-    const glm::vec2 vTargetPanOffset = glm::vec2(targetPanOffset.x, targetPanOffset.y);
-    const auto newOffset = AnoukhFun::Damp<glm::vec2>( vPanOffset , vTargetPanOffset, 0.00000001f, deltaTime);
-    panOffset = ImVec2(targetPanOffset.x, targetPanOffset.y);
-    RenderViewPort();
-    unsigned char col[3] = {static_cast<unsigned char>(AnoukhFun::RandomInt(0,255)),
-        static_cast<unsigned char>(AnoukhFun::RandomInt(0,255)),
-        static_cast<unsigned char>(AnoukhFun::RandomInt(0,255))};
-    //texture.EditPixel(AnoukhFun::RandomInt(0, texture.GetWidth()-1), AnoukhFun::RandomInt(0, texture.GetHeight()-1), col );
-}
-
-void TextureEditor::SetZoom(float inZoom)
-{
-    targetZoom = inZoom;
-}
-
-float TextureEditor::GetZoom()
-{
-    return zoom;
-}
-
 bool TextureEditor::IsWindowHovered()
 {
     return isWindowHovered;
-}
-
-void TextureEditor::StartPanning(const float x, const float y)
-{
-    startPan = ImVec2(x,y);
-    targetPanOffset= ImVec2(0.0f,0.0f);
-    isPanning = true;
-}
-
-void TextureEditor::SetPanOffset(const float x, const float y)
-{
-    if(isPanning)
-    {
-        targetPanOffset = ImVec2(startPan.x - x,startPan.y - y);
-    }
-}
-
-void TextureEditor::StopPanning(bool savePan)
-{
-    isPanning = false;
-    if (savePan)
-    {
-        offset = ImVec2(offset.x + targetPanOffset.x, offset.y + targetPanOffset.y);
-    }
-    panOffset = ImVec2(panOffset.x - targetPanOffset.x,panOffset.y- targetPanOffset.y);
-    targetPanOffset = ImVec2(0.0f,0.0f);
-}
-
-bool TextureEditor::IsPanning() const
-{
-    return isPanning;
 }
 
 bool TextureEditor::ScreenToTexture(const float x, const float y, float& outX, float& outY)
@@ -192,6 +136,7 @@ void TextureEditor::LoadTexture()
 
 void TextureEditor::GetVertexScale(float& x, float& y)
 {
+    float zoom = GetZoom();
     float ratio = lastSize.x / lastSize.y;
     float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
     x = zoom * textureRatio;
@@ -200,6 +145,7 @@ void TextureEditor::GetVertexScale(float& x, float& y)
 
 void TextureEditor::GetVertexOffset(float& x, float& y)
 {
-    x = (-(offset.x + panOffset.x)) / (lastSize.x / 2);
-    y = (offset.y + panOffset.y) / (lastSize.y / 2);
+    ImVec2 offset = GetOffset();
+    x = -offset.x / (lastSize.x / 2);
+    y = offset.y / (lastSize.y / 2);
 }

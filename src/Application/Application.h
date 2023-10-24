@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Window.h"
-#include "..\Scene\Viewport\TextureEditor.h"
+#include "../Scene/Viewport/2DViewPort/TextureEditor.h"
 #include "../Rendering/Textures/TextureDrawers/Pen.h"
 
 
