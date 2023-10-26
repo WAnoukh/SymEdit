@@ -4,13 +4,13 @@
 class ViewPort2D : public ViewPortBase
 {
 public:
-    virtual void SetZoom(float inZoom);
-    virtual float GetZoom();
-    virtual void StartPanning(const float x, const float y);
-    virtual void StopPanning(bool savePan = true);
-    virtual void SetPanOffset(const float x, const float y);
-    virtual bool IsPanning() const;
-    virtual ImVec2 GetOffset() const;
+    void SetZoom(float inZoom);
+    float GetZoom();
+    void StartPanning(const float x, const float y);
+    void StopPanning(bool savePan = true);
+    void SetPanOffset(const float x, const float y);
+    bool IsPanning() const;
+    ImVec2 GetOffset() const;
 
     void Tick(float deltaTime) override;
     

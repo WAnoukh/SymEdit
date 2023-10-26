@@ -13,6 +13,9 @@ void Application::Init() {
 		std::cerr << "Application : Window.init() Failed." << std::endl;
 	}
 	glEnable(GL_DEPTH_TEST);
+
+	viewPorts.push_back(&textureEditor);
+	viewPorts.push_back(&planeViewer);
 }
 
 void Application::Render()
@@ -24,21 +27,24 @@ void Application::Render()
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
-	ImGuiViewport* viewport = ImGui::GetMainViewport();
+	ImGuiViewport* guiViewPort = ImGui::GetMainViewport();
 	static ImGuiDockNodeFlags dockspace_flags = ImGuiDockNodeFlags_PassthruCentralNode;
-	ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(viewport,dockspace_flags);
+	ImGuiID dockspace_id = ImGui::DockSpaceOverViewport(guiViewPort,dockspace_flags);
 	if(LayoutNeedRefresh)
 	{
 		if (dockspace_id)
 		{
-			if(viewport->Size.x != 0 && viewport->Size.y != 0)
+			if(guiViewPort->Size.x != 0 && guiViewPort->Size.y != 0)
 			{
 				ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
-				ImGui::DockBuilderSetNodeSize(dockspace_id, viewport->Size);
+				ImGui::DockBuilderSetNodeSize(dockspace_id, guiViewPort->Size);
 
+				
 				auto dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.1f, nullptr, &dockspace_id);
 				ImGui::DockBuilderDockWindow("Tools", dock_id_top);
-				ImGui::DockBuilderDockWindow(textureEditor.GetGuiName(), dockspace_id);
+				auto dock_id_top2 = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.5f, nullptr, &dockspace_id);
+				ImGui::DockBuilderDockWindow(textureEditor.GetGuiName(), dock_id_top2);
+				ImGui::DockBuilderDockWindow(planeViewer.GetGuiName(), dockspace_id);
 			}
 		}
 		LayoutNeedRefresh = false;
@@ -46,9 +52,11 @@ void Application::Render()
 	ImGui::Begin("Tools");
 	ImGui::Text("This is some useful text.");
 	ImGui::End();
-	
-	textureEditor.RenderUI();
-	pen.RenderUI();
+
+	for( auto& viewPort : viewPorts)
+	{
+		viewPort->RenderUI();
+	}
 	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -64,7 +72,10 @@ void Application::Tick(float deltaTime)
 		pen.SetInterpolate(true);
 		ImGui::SetWindowFocus(textureEditor.GetGuiName());
 	}
-	textureEditor.Tick(deltaTime);
+	for (auto& viewPort : viewPorts)
+	{
+		viewPort->Tick(deltaTime);
+	}
 }
 
 Application& Application::GetInstance()

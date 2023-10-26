@@ -1,7 +1,7 @@
 ﻿#pragma once
-#include "ViewPortBase.h"
+#include "ViewPort2D.h"
 
-class PlaneViewer : public ViewPortBase
+class PlaneViewer : public ViewPort2D
 {
 public:
     void Init() override;
@@ -10,6 +10,4 @@ public:
     void Tick(float deltaTime) override;
 
     bool ScreenToTexture(const float x, const float y, float& outX, float& outY) override;
-
-    
 };

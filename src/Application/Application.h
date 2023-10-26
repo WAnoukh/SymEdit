@@ -1,8 +1,11 @@
 #pragma once
 
+#include <list>
+
 #include "Window.h"
 #include "../Scene/Viewport/2DViewPort/TextureEditor.h"
 #include "../Rendering/Textures/TextureDrawers/Pen.h"
+#include "../Scene/Viewport/2DViewport/PlaneViewer.h"
 
 
 class Application
@@ -40,7 +43,9 @@ private:
 	bool LayoutNeedRefresh = true;
 	bool mouseRightPressed = false;
 	Window Window;
+	std::list<ViewPortBase*> viewPorts;
 	TextureEditor textureEditor;
+	PlaneViewer planeViewer;
 	Pen pen;
 
 	double lastX = 0.0f;

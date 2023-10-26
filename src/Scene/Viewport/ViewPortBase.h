@@ -17,10 +17,10 @@ public:
     virtual void RenderViewPort();
 
     virtual void Tick(float deltaTime) = 0;
-
-    virtual const char* GetGuiName();
-
     virtual bool ScreenToTexture(const float x, const float y, float& outX, float& outY) = 0;
+
+    const char* GetGuiName();
+
     
 protected:
     const char* guiName;
