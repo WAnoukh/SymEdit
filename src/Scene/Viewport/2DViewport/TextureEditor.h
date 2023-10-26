@@ -22,15 +22,9 @@ public:
 
     bool ScreenToTexture(const float x, const float y, float& outX, float& outY) override;
 
-    Texture& GetTexture();
-
 private:
-    Texture texture;
-    unsigned int canvasTexture;
     unsigned int VBO, EBO;
     Shader* shader;
-
-    void LoadTexture();
 
     void GetVertexScale(float& x, float& y);
 

@@ -233,7 +233,8 @@
     <ClCompile Include="src\Scene\Scene.cpp" />
     <ClCompile Include="src\Scene\Viewport\2DViewport\ViewPort2D.cpp" />
     <ClCompile Include="src\Scene\Viewport\2DViewport\TextureEditor.cpp" />
-    <ClCompile Include="src\Scene\Viewport\2DViewport\ViewPortBase.cpp">
+    <ClCompile Include="src\Scene\Viewport\PlaneViewer.cpp" />
+    <ClCompile Include="src\Scene\Viewport\ViewPortBase.cpp">
       <RuntimeLibrary>MultiThreadedDebugDll</RuntimeLibrary>
       <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
       <Optimization>Disabled</Optimization>
@@ -307,7 +308,6 @@
       <AdditionalIncludeDirectories>third_parties/imgui</AdditionalIncludeDirectories>
       <LinkCompiled>true</LinkCompiled>
     </ClCompile>
-    <ClCompile Include="src\Scene\Viewport\PlaneViewer.cpp" />
     <ClCompile Include="third_parties\glad\glad.c" />
     <ClCompile Include="third_parties\glm\detail\dummy.cpp" />
     <ClCompile Include="third_parties\glm\detail\glm.cpp" />
@@ -407,8 +407,8 @@
     <ClInclude Include="src\Scene\Scene.h" />
     <ClInclude Include="src\Scene\Viewport\2DViewport\ViewPort2D.h" />
     <ClInclude Include="src\Scene\Viewport\2DViewport\TextureEditor.h" />
-    <ClInclude Include="src\Scene\Viewport\2DViewport\ViewPortBase.h" />
     <ClInclude Include="src\Scene\Viewport\PlaneViewer.h" />
+    <ClInclude Include="src\Scene\Viewport\ViewPortBase.h" />
     <ClInclude Include="third_parties\glad\glad.h" />
     <ClInclude Include="third_parties\GLFW\include\glfw3.h" />
     <ClInclude Include="third_parties\GLFW\include\glfw3native.h" />

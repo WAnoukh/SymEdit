@@ -18,6 +18,8 @@ void Application::Init() {
 void Application::Render()
 {
 	Window.PreRender();
+
+	activeTexture.SendDataToOpenGl();
 	
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
@@ -58,7 +60,7 @@ void Application::Tick(float deltaTime)
 {
 	if (textureEditor.IsWindowHovered() && mouseRightPressed)
 	{
-		pen.Apply(textureEditor.GetTexture(), textureEditor, static_cast<float>(lastX), static_cast<float>(lastY));
+		pen.Apply(GetActiveTexture(), textureEditor, static_cast<float>(lastX), static_cast<float>(lastY));
 		pen.SetInterpolate(true);
 		ImGui::SetWindowFocus(textureEditor.GetGuiName());
 	}
@@ -77,6 +79,10 @@ Application& Application::GetInstance()
 int Application::Run() {
 	textureEditor.Init();
 	float lastFrame = 0.0f;
+
+	activeTexture.CreateBlankTexture(1600, 1300, GL_RGB);
+	activeTexture.GenerateOpenGlTexture();
+	activeTexture.SendDataToOpenGl();
 	
 	// render loop
 	// -----------

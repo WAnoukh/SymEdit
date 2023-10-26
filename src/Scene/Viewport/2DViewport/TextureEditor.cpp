@@ -9,6 +9,7 @@
 #include <stb_image.h>
 
 #include "imgui_impl_opengl3_loader.h"
+#include "../../../Application/Application.h"
 #include "../../../Rendering/shader_s.h"
 
 
@@ -55,18 +56,15 @@ void TextureEditor::Init()
     glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
     glEnableVertexAttribArray(1);
 
-    LoadTexture();
-    texture.CreateBlankTexture(1600, 1300, GL_RGB);
-    texture.GenerateOpenGlTexture();
-    texture.SendDataToOpenGl();
 }
 
 void TextureEditor::RenderViewPort()
 {
     ViewPortBase::RenderViewPort();
-    texture.SendDataToOpenGl();
+
     glBindVertexArray(VAO);
     glActiveTexture(GL_TEXTURE0);
+    const Texture& texture = Application::GetInstance().GetActiveTexture();
     glBindTexture(GL_TEXTURE_2D, texture.GetTextureId());
     shader->use();
     float correctedScaleX, correctedScaleY;
@@ -124,20 +122,12 @@ bool TextureEditor::ScreenToTexture(const float x, const float y, float& outX, f
     return true;
 }
 
-Texture& TextureEditor::GetTexture()
-{
-    return texture;
-}
-
-void TextureEditor::LoadTexture()
-{
-    canvasTexture = loadTexture("src/testcoloris.jpg");
-}
-
 void TextureEditor::GetVertexScale(float& x, float& y)
 {
     float zoom = GetZoom();
     float ratio = lastSize.x / lastSize.y;
+    Application& app = Application::GetInstance();
+    Texture& texture = app.GetActiveTexture();
     float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
     x = zoom * textureRatio;
     y = zoom * ratio;

@@ -30,6 +30,9 @@ public:
 
 	void MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xPos, double yPos);
 
+	//Texture Editing
+	Texture& GetActiveTexture() { return activeTexture; }
+	
 private:
 	const unsigned int INITIAL_SCR_WIDTH = 1000;
 	const unsigned int INITIAL_SCR_HEIGHT = 1000;
@@ -48,5 +51,8 @@ private:
 	void Render();
 
 	void Tick(float deltaTime);
+
+	//Texture Editing
+	Texture activeTexture;
 };
 
