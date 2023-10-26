@@ -1,4 +1,7 @@
 ﻿#pragma once
+#include <glad/glad.h>
+#include <GLFW/glfw3.h>
+
 #include "../ViewPortBase.h"
 
 class ViewPort2D : public ViewPortBase
@@ -14,6 +17,12 @@ public:
     ImVec2 GetOffset() const;
 
     void Tick(float deltaTime) override;
+
+    void ScrollCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xoffset, double yoffset) override;
+
+    void MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCapture, int button, int action, int mods) override;
+
+    void MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xPos, double yPos) override;
     
 private:
     // Panning

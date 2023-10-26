@@ -54,20 +54,35 @@ void PlaneViewer::Init()
 void PlaneViewer::RenderViewPort()
 {
     ViewPort2D::RenderViewPort();
-    glClearColor(1, 0.1843137254901961f, 0.26666666666666666, 1.00f);
-    glClear(GL_COLOR_BUFFER_BIT);
+
     glBindVertexArray(VAO);
-    //glActiveTexture(GL_TEXTURE0);
-    //const Texture& texture = Application::GetInstance().GetActiveTexture();
-    //glBindTexture(GL_TEXTURE_2D, texture.GetTextureId());
+    glActiveTexture(GL_TEXTURE0);
+    const Texture& texture = Application::GetInstance().GetActiveTexture();
+    glBindTexture(GL_TEXTURE_2D, texture.GetTextureId());
+    
     if(shader == nullptr)
     {
         std::cerr << "Shader is null" << std::endl;
         return;
     }
-
     shader->use();
 
+    const float zoom = GetZoom();
+    const ImVec2 viewPortSize = GetViewPortSize();
+    if (viewPortSize.y != 0)
+    {
+        const float ratio = viewPortSize.x / viewPortSize.y;
+        shader->setVec2("scale", zoom,(ratio * zoom));   
+    }else
+    {
+        shader->setVec2("scale", 1,1); 
+    }
+    
+    const ImVec2 offset = GetOffset();
+    const float correctedOffsetX = -offset.x / (viewPortSize.x / 2);
+    const float correctedOffsetY = offset.y / (viewPortSize.y / 2);
+    shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
+    
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
     glBindFramebuffer(GL_FRAMEBUFFER, 0);

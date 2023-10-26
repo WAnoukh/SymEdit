@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "../../third_parties/imgui/imgui.h"
 
+class GLFWwindow;
 
 class ViewPortBase
 {
@@ -27,7 +28,11 @@ public:
 
     ImVec2 GetViewPortSize();
 
-    
+    virtual void ScrollCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xoffset, double yoffset) = 0;
+
+    virtual void MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCapture, int button, int action, int mods) = 0;
+
+    virtual void MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xPos, double yPos) = 0;
 private:
     const char* guiName;
     ImVec2 lastSize = ImVec2(0,0);

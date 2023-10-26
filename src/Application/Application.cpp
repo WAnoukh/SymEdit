@@ -128,33 +128,17 @@ void Application::AskForLayoutRefresh()
 
 void Application::ScrollCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xoffset, double yoffset)
 {
-	if (textureEditor.IsWindowHovered())
+	for(auto& viewPort : viewPorts)
 	{
-		textureEditor.SetZoom(textureEditor.GetZoom()*(1 + yoffset*0.1));
-		ImGui::SetWindowFocus(textureEditor.GetGuiName());
+		viewPort->ScrollCallBackEvent(window, guiWantToCapture, xoffset, yoffset);
 	}
 }
 
 void Application::MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCapture, int button, int action, int mods)
 {
-	if(button == GLFW_MOUSE_BUTTON_MIDDLE)
+	for(auto& viewPort : viewPorts)
 	{
-		if(action == GLFW_PRESS)
-		{
-			if (textureEditor.IsWindowHovered() && !textureEditor.IsPanning())
-			{
-				textureEditor.StartPanning(static_cast<float>(lastX), static_cast<float>(lastY));
-				ImGui::SetWindowFocus(textureEditor.GetGuiName());
-			}
-		}
-		else if(action == GLFW_RELEASE)
-		{
-			if(textureEditor.IsPanning())
-			{
-				textureEditor.StopPanning();
-			}
-		}
-		return;
+		viewPort->MouseButtonCallBackEvent(window, guiWantToCapture, button, action, mods);
 	}
 	if (button == GLFW_MOUSE_BUTTON_LEFT)
 	{
@@ -175,9 +159,8 @@ void Application::MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToC
 	//TODO: Replace that with Imgui::MousePos
 	lastX = xPos;
 	lastY = yPos;
-	if(textureEditor.IsPanning())
+	for(auto& viewPort : viewPorts)
 	{
-		textureEditor.SetPanOffset(static_cast<float>(lastX), static_cast<float>(lastY));
-		ImGui::SetWindowFocus(textureEditor.GetGuiName());
+		viewPort->MousePositionCallBackEvent(window, guiWantToCapture, xPos, yPos);
 	}
 }
