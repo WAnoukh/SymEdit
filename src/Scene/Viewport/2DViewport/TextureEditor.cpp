@@ -19,6 +19,7 @@ TextureEditor::~TextureEditor()
 {
     glDeleteBuffers(1, &VBO);
     glDeleteBuffers(1, &EBO);
+    glDeleteVertexArrays(1, &VAO);
 }
 
 void TextureEditor::Init()
@@ -38,7 +39,7 @@ void TextureEditor::Init()
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);
-    shader = new Shader("src/Rendering/Shaders/ViewPort.vert", "src/Rendering/Shaders/ViewPort.frag");
+    shader = new Shader("src/Rendering/Shaders/ViewPort/TextureEditor.vert", "src/Rendering/Shaders/ViewPort/TextureEditor.frag");
 
     glBindVertexArray(VAO);
 

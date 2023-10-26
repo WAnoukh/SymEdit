@@ -757,14 +757,14 @@
   <ItemGroup>
     <Content Include=".gitignore" />
     <Content Include="src\lol.jpg" />
+    <Content Include="src\Rendering\Shaders\ViewPort\PlaneViewer.frag" />
+    <Content Include="src\Rendering\Shaders\ViewPort\PlaneViewer.vert" />
+    <Content Include="src\Rendering\Shaders\ViewPort\TextureEditor.frag" />
+    <Content Include="src\Rendering\Shaders\ViewPort\TextureEditor.vert" />
     <Content Include="third_parties\GLFW\lib-mingw-w64\glfw3.dll" />
     <Content Include="third_parties\GLFW\lib-mingw-w64\libglfw3.a" />
     <Content Include="third_parties\GLFW\lib-mingw-w64\libglfw3dll.a" />
     <Content Include="third_parties\glm\CMakeLists.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="src\Rendering\Shaders\" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

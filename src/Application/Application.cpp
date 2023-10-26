@@ -56,6 +56,7 @@ void Application::Render()
 	{
 		viewPort->RenderUI();
 	}
+	pen.RenderUI();
 	
 	ImGui::Render();
 	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
@@ -87,7 +88,11 @@ Application& Application::GetInstance()
 }
 
 int Application::Run() {
-	textureEditor.Init();
+
+	for (auto& viewPort : viewPorts)
+	{
+		viewPort->Init();
+	}
 	float lastFrame = 0.0f;
 
 	activeTexture.CreateBlankTexture(1600, 1300, GL_RGB);
