@@ -4,6 +4,9 @@
 class PlaneViewer : public ViewPort2D
 {
 public:
+    PlaneViewer() : ViewPort2D("PlaneViewer") {}
+    ~PlaneViewer() override;
+    
     void Init() override;
     void RenderUI() override;
 

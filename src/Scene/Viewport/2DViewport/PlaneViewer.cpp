@@ -1,5 +1,10 @@
 ﻿#include "PlaneViewer.h"
 
+PlaneViewer::~PlaneViewer()
+{
+    
+}
+
 void PlaneViewer::Init()
 {
     

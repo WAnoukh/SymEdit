@@ -10,7 +10,7 @@ class Shader;
 class TextureEditor : public ViewPort2D
 {
 public:
-    TextureEditor() { guiName = "TextureEditor"; }
+    TextureEditor() : ViewPort2D("TextureEditor") {}
 
     ~TextureEditor() override;
 
@@ -18,12 +18,13 @@ public:
     void RenderViewPort() override;
     void RenderUI() override;
 
-    bool IsWindowHovered();
-
     bool ScreenToTexture(const float x, const float y, float& outX, float& outY) override;
 
+
 private:
-    unsigned int VBO, EBO;
+    unsigned int VBO = 0;
+    unsigned int EBO = 0;
+    unsigned int VAO = 0;
     Shader* shader;
 
     void GetVertexScale(float& x, float& y);

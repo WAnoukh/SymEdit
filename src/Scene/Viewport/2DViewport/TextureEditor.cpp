@@ -17,14 +17,13 @@
 
 TextureEditor::~TextureEditor()
 {
-    glDeleteFramebuffers(1, &FBO);
-    glDeleteTextures(1,&viewPortTexture);
+    glDeleteBuffers(1, &VBO);
+    glDeleteBuffers(1, &EBO);
 }
 
 void TextureEditor::Init()
 {
-    glGenFramebuffers(1, &FBO);
-    glGenTextures(1, &viewPortTexture);
+    ViewPortBase::Init();
     float vertices[] = {
         // positions        // uv coord
         0.5f,  -0.5f, 0.0f, 1.0f, 1.0f, // top right
@@ -90,21 +89,19 @@ void TextureEditor::RenderUI()
     //TODO: Erase this
     ImGui ::Begin("help tool");
     ImGui::Text("MousePos: %f %f", mousePos.x, mousePos.y);
+    ImVec2 viewPortPos = GetViewPortPos();
     ImGui::Text("MousePosRelative: %f %f", mousePos.x - viewPortPos.x,mousePos.y - viewPortPos.y);
     ImGui::Text("ViewPortPos: %f %f", viewPortPos.x, viewPortPos.y);
     ImGui::Text("TexturePos: %f %f", texturePos.x, texturePos.y);
     ImGui::End();
 }
 
-bool TextureEditor::IsWindowHovered()
-{
-    return isWindowHovered;
-}
-
 bool TextureEditor::ScreenToTexture(const float x, const float y, float& outX, float& outY)
 {
+    ImVec2 viewPortPos = GetViewPortPos();
     ImVec2 mouseLocalPos = ImVec2(x - viewPortPos.x, y - viewPortPos.y);
-    ImVec2 mouseLocalPosNormalized = ImVec2(mouseLocalPos.x / lastSize.x, mouseLocalPos.y / lastSize.y);
+    ImVec2 viewPortSize = GetViewPortSize();
+    ImVec2 mouseLocalPosNormalized = ImVec2(mouseLocalPos.x / viewPortSize.x, mouseLocalPos.y / viewPortSize.y);
     ImVec2 mouseLocalPosNormalizedCentered = ImVec2(mouseLocalPosNormalized.x * 2.0f - 1.0f, mouseLocalPosNormalized.y * -2.0f + 1.0f);
     float correctedScaleX, correctedScaleY;
     GetVertexScale(correctedScaleX, correctedScaleY);
@@ -125,7 +122,8 @@ bool TextureEditor::ScreenToTexture(const float x, const float y, float& outX, f
 void TextureEditor::GetVertexScale(float& x, float& y)
 {
     float zoom = GetZoom();
-    float ratio = lastSize.x / lastSize.y;
+    ImVec2 viewPortSize = GetViewPortSize();
+    float ratio = viewPortSize.x / viewPortSize.y;
     Application& app = Application::GetInstance();
     Texture& texture = app.GetActiveTexture();
     float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
@@ -136,6 +134,7 @@ void TextureEditor::GetVertexScale(float& x, float& y)
 void TextureEditor::GetVertexOffset(float& x, float& y)
 {
     ImVec2 offset = GetOffset();
-    x = -offset.x / (lastSize.x / 2);
-    y = offset.y / (lastSize.y / 2);
+    ImVec2 viewPortSize = GetViewPortSize();
+    x = -offset.x / (viewPortSize.x / 2);
+    y = offset.y / (viewPortSize.y / 2);
 }

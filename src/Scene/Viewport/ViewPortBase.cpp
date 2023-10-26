@@ -3,6 +3,18 @@
 #include "imgui.h"
 #include <GLFW/glfw3.h>
 
+ViewPortBase::~ViewPortBase()
+{
+    glDeleteFramebuffers(1, &FBO);
+    glDeleteTextures(1,&viewPortTexture);
+}
+
+void ViewPortBase::Init()
+{
+    glGenFramebuffers(1, &FBO);
+    glGenTextures(1, &viewPortTexture);
+}
+
 void ViewPortBase::RenderUI()
 {
     RenderViewPort();
@@ -49,8 +61,23 @@ void ViewPortBase::RenderViewPort()
     PreRenderViewPort();
 }
 
+bool ViewPortBase::IsWindowHovered()
+{
+    return isWindowHovered;
+}
+
 const char* ViewPortBase::GetGuiName()
 {
     return guiName;
+}
+
+ImVec2 ViewPortBase::GetViewPortPos()
+{
+    return viewPortPos;
+}
+
+ImVec2 ViewPortBase::GetViewPortSize()
+{
+    return lastSize;
 }
 

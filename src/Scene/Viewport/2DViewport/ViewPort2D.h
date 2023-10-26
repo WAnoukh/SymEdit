@@ -4,6 +4,7 @@
 class ViewPort2D : public ViewPortBase
 {
 public:
+    ViewPort2D(const char* name = "ViewPort2D") : ViewPortBase(name){}
     void SetZoom(float inZoom);
     float GetZoom();
     void StartPanning(const float x, const float y);

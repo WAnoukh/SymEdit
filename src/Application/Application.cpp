@@ -38,7 +38,6 @@ void Application::Render()
 			{
 				ImGui::DockBuilderAddNode(dockspace_id, dockspace_flags | ImGuiDockNodeFlags_DockSpace);
 				ImGui::DockBuilderSetNodeSize(dockspace_id, guiViewPort->Size);
-
 				
 				auto dock_id_top = ImGui::DockBuilderSplitNode(dockspace_id, ImGuiDir_Left, 0.1f, nullptr, &dockspace_id);
 				ImGui::DockBuilderDockWindow("Tools", dock_id_top);
