@@ -1,5 +1,5 @@
 ﻿#pragma once
-#include "2DViewPort.h"
+#include "ViewPort2D.h"
 #include "../ViewPortBase.h"
 #include "../../third_parties/imgui/imgui.h"
 #include "../../../Rendering/Textures/Texture.h"
