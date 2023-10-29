@@ -37,6 +37,9 @@ protected:
     virtual void RecompileShaders();
     
 private:
+    const float defaultLerpSpeed = 0.0001f;
+    float lerpSpeed = defaultLerpSpeed;
+    
     // Panning
     bool isPanning = false;
     ImVec2 lastMousePos = ImVec2(0.0f,0.0f);

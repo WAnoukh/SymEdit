@@ -4,6 +4,8 @@
 
 #include "../../../Helpers/UsefullFunc.h"
 
+#include <glm/glm.hpp>
+
 
 
 void ViewPort2D::SetZoom(float inZoom)
@@ -57,11 +59,11 @@ ImVec2 ViewPort2D::GetDisplayedOffset() const
 
 void ViewPort2D::Tick(float deltaTime)
 {
-    displayedZoom = AnoukhFun::Damp(displayedZoom, targetZoom, 0.0f, deltaTime);
-    //const glm::vec2 vPanOffset = glm::vec2(panOffset.x, panOffset.y);
-    //const glm::vec2 vTargetPanOffset = glm::vec2(targetPanOffset.x, targetPanOffset.y);
-    //const auto newOffset = AnoukhFun::Damp<glm::vec2>( vPanOffset , vTargetPanOffset, 0.00000001f, deltaTime);
-    displayedOffset = {targetPanOffset.x, targetPanOffset.y};
+    displayedZoom = AnoukhFun::Damp(displayedZoom, targetZoom, lerpSpeed, deltaTime);
+    const glm::vec2 vPanOffset = glm::vec2(displayedOffset.x, displayedOffset.y);
+    const glm::vec2 vTargetPanOffset = glm::vec2(targetPanOffset.x, targetPanOffset.y);
+    const auto newOffset = AnoukhFun::Damp<glm::vec2>( vPanOffset , vTargetPanOffset, lerpSpeed, deltaTime);
+    displayedOffset = {newOffset.x, newOffset.y};
 }
 
 void ViewPort2D::RenderUI()
@@ -80,6 +82,13 @@ void ViewPort2D::RenderUI()
     {
         RecompileShaders();
     }
+    ImGui::Button("Reset Zoom and Panning");
+    if (ImGui::IsItemClicked())
+    {
+        targetZoom = 1.0f;
+        targetPanOffset = ImVec2(0.0f,0.0f);
+        lerpSpeed = defaultLerpSpeed;
+    }
 
     ImGui::End();
 }
@@ -88,6 +97,7 @@ void ViewPort2D::ScrollCallBackEvent(GLFWwindow* window, bool guiWantToCapture, 
 {
     if (IsWindowHovered())
     {
+        lerpSpeed = 0.0f;
         SetZoom(GetDisplayedZoom() * (1.0f + static_cast<float>(yoffset)*0.1f));
         ImGui::SetWindowFocus(GetGuiName());
     }
@@ -101,6 +111,7 @@ void ViewPort2D::MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCapt
         {
             if (IsWindowHovered() && !IsPanning())
             {
+                lerpSpeed = 0.0f;
                 ImVec2 mousePos = ImGui::GetMousePos();
                 StartPanning(mousePos.x, mousePos.y);
                 ImGui::SetWindowFocus(GetGuiName());
