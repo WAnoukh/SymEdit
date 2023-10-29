@@ -33,6 +33,8 @@ protected:
     virtual void GetScreenZoom(float& x, float& y) = 0;
 
     virtual void GetScreenOffset(float& x, float& y) = 0;
+
+    virtual void RecompileShaders();
     
 private:
     // Panning

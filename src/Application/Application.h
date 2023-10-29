@@ -39,7 +39,7 @@ public:
 private:
 	const unsigned int INITIAL_SCR_WIDTH = 1000;
 	const unsigned int INITIAL_SCR_HEIGHT = 1000;
-	const unsigned int TEXTURE_W = 2048;
+	const unsigned int TEXTURE_W = 1600;
 	const unsigned int TEXTURE_H = 1024;
 	int swapInterval = 0;
 	bool LayoutNeedRefresh = true;

@@ -12,7 +12,7 @@ uniform sampler2D texture1;
 
 void main()
 {
-    vec2 texCoords = mod ((screenPos*2- offset) / scale,1);
+    vec2 texCoords = mod ((screenPos*2) / scale + offset,1);
     FragColor = vec4(texCoords.xy, 0f, 1.0f);
     FragColor = texture(texture1, vec2(texCoords.x,-texCoords.y));
 }

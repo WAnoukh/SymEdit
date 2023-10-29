@@ -142,3 +142,8 @@ void TextureEditor::GetScreenOffset(float& x, float& y)
     x = -offset.x / (viewPortSize.x / 2);
     y = offset.y / (viewPortSize.y / 2);
 }
+
+void TextureEditor::RecompileShaders()
+{
+    shader->compile();
+}

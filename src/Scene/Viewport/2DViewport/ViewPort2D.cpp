@@ -74,6 +74,13 @@ void ViewPort2D::RenderUI()
     ImGui::Text("dOffset: %f, %f", displayedOffset.x, displayedOffset.y);
     ImGui::Text("tOffset: %f, %f", targetPanOffset.x, targetPanOffset.y);
     ImGui::Text("TexturePos: %f, %f", screenToTextPos.x, screenToTextPos.y);
+    //Create a button to call the recompile shader function
+    ImGui::Button("Recompile Shaders");
+    if (ImGui::IsItemClicked())
+    {
+        RecompileShaders();
+    }
+
     ImGui::End();
 }
 
@@ -122,4 +129,8 @@ void ViewPort2D::MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToCa
         //->targetPanOffset = ImVec2(startPan.x - x,startPan.y - y);
         ImGui::SetWindowFocus(GetGuiName());
     }
+}
+
+void ViewPort2D::RecompileShaders()
+{
 }

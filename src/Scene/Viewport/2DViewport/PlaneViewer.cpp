@@ -66,21 +66,16 @@ void PlaneViewer::RenderViewPort()
         return;
     }
     shader->use();
-
-    const float zoom = GetDisplayedZoom();
-    const ImVec2 viewPortSize = GetViewPortSize();
-    if (viewPortSize.y != 0)
-    {
-        const float ratio = viewPortSize.x / viewPortSize.y;
-        shader->setVec2("scale", zoom,(ratio * zoom));   
-    }else
-    {
-        shader->setVec2("scale", 1,1); 
-    }
     
-    const ImVec2 offset = GetDisplayedOffset();
-    const float correctedOffsetX = -offset.x / (viewPortSize.x / 2);
-    const float correctedOffsetY = offset.y / (viewPortSize.y / 2);
+    float correctedScaleX;
+    float correctedScaleY;
+    GetScreenZoom(correctedScaleX, correctedScaleY);
+    
+    shader->setVec2("scale", correctedScaleX,correctedScaleY); 
+    
+    float correctedOffsetX;
+    float correctedOffsetY;
+    GetScreenOffset(correctedOffsetX, correctedOffsetY);
     shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
     
     glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
@@ -105,12 +100,25 @@ bool PlaneViewer::ScreenToTexture(const float x, const float y, float& outX, flo
 
 void PlaneViewer::GetScreenZoom(float& x, float& y)
 {
-    x = 0;
-    y = 0;
+    float zoom = GetDisplayedZoom();
+    ImVec2 viewPortSize = GetViewPortSize();
+    float ratio = viewPortSize.x / viewPortSize.y;
+    Application& app = Application::GetInstance();
+    Texture& texture = app.GetActiveTexture();
+    float textureRatio = static_cast<float>(texture.GetWidth()) / static_cast<float>(texture.GetHeight());
+    x = zoom * textureRatio;
+    y = zoom * ratio;
 }
 
 void PlaneViewer::GetScreenOffset(float& x, float& y)
 {
-    x = 0;
-    y = 0;
+    ImVec2 offset = GetDisplayedOffset();
+    ImVec2 viewPortSize = GetViewPortSize();
+    x = -offset.x / (viewPortSize.x / 2);
+    y = offset.y / (viewPortSize.y / 2);
+}
+
+void PlaneViewer::RecompileShaders()
+{
+    shader->compile();
 }

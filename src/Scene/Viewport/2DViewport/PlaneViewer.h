@@ -21,6 +21,8 @@ protected:
     void GetScreenZoom(float& x, float& y) override;
 
     void GetScreenOffset(float& x, float& y) override;
+
+    void RecompileShaders() override;
     
 private:
     unsigned int VBO = 0;

@@ -17,6 +17,18 @@ public:
     // ------------------------------------------------------------------------
     Shader(const char* vertexPath, const char* fragmentPath) : vertexPath(vertexPath), fragmentPath(fragmentPath)
     {
+        // shader Program
+        
+        compile();
+
+    }
+    void compile()
+    {
+        if (ID)
+        {
+            glDeleteProgram(ID);
+        }
+        ID = glCreateProgram();
         // 1. retrieve the vertex/fragment source code from filePath
         std::string vertexCode;
         std::string fragmentCode;
@@ -59,8 +71,6 @@ public:
         glShaderSource(fragment, 1, &fShaderCode, NULL);
         glCompileShader(fragment);
         checkCompileErrors(fragment, "FRAGMENT");
-        // shader Program
-        ID = glCreateProgram();
         glAttachShader(ID, vertex);
         glAttachShader(ID, fragment);
         glLinkProgram(ID);
@@ -68,8 +78,8 @@ public:
         // delete the shaders as they're linked into our program now and no longer necessary
         glDeleteShader(vertex);
         glDeleteShader(fragment);
-
     }
+    
     // activate the shader
     // ------------------------------------------------------------------------
     void use() const
