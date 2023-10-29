@@ -17,6 +17,11 @@ public:
 
     bool ScreenToTexture(const float x, const float y, float& outX, float& outY) override;
 
+protected:
+    void GetScreenZoom(float& x, float& y) override;
+
+    void GetScreenOffset(float& x, float& y) override;
+    
 private:
     unsigned int VBO = 0;
     unsigned int EBO = 0;

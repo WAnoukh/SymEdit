@@ -67,7 +67,7 @@ void PlaneViewer::RenderViewPort()
     }
     shader->use();
 
-    const float zoom = GetZoom();
+    const float zoom = GetDisplayedZoom();
     const ImVec2 viewPortSize = GetViewPortSize();
     if (viewPortSize.y != 0)
     {
@@ -78,7 +78,7 @@ void PlaneViewer::RenderViewPort()
         shader->setVec2("scale", 1,1); 
     }
     
-    const ImVec2 offset = GetOffset();
+    const ImVec2 offset = GetDisplayedOffset();
     const float correctedOffsetX = -offset.x / (viewPortSize.x / 2);
     const float correctedOffsetY = offset.y / (viewPortSize.y / 2);
     shader->setVec2("offset", correctedOffsetX, correctedOffsetY);
@@ -101,4 +101,16 @@ void PlaneViewer::Tick(float deltaTime)
 bool PlaneViewer::ScreenToTexture(const float x, const float y, float& outX, float& outY)
 {
     return true;
+}
+
+void PlaneViewer::GetScreenZoom(float& x, float& y)
+{
+    x = 0;
+    y = 0;
+}
+
+void PlaneViewer::GetScreenOffset(float& x, float& y)
+{
+    x = 0;
+    y = 0;
 }

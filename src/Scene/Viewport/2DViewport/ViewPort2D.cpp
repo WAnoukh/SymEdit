@@ -1,4 +1,7 @@
 ﻿#include "ViewPort2D.h"
+
+#include <string>
+
 #include "../../../Helpers/UsefullFunc.h"
 
 
@@ -8,35 +11,38 @@ void ViewPort2D::SetZoom(float inZoom)
     targetZoom = inZoom;
 }
 
-float ViewPort2D::GetZoom()
+float ViewPort2D::GetDisplayedZoom() const 
 {
-    return zoom;
+    return displayedZoom;
 }
 
 void ViewPort2D::StartPanning(const float x, const float y)
 {
-    startPan = ImVec2(x,y);
-    targetPanOffset= ImVec2(0.0f,0.0f);
+    lastMousePos = {x,y};
+    //startPan = ImVec2(x,y);
+    //targetPanOffset= ImVec2(0.0f,0.0f);
     isPanning = true;
 }
 
-void ViewPort2D::SetPanOffset(const float x, const float y)
+void ViewPort2D::ApplyPanning(const float x, const float y)
 {
-    if(isPanning)
-    {
-        targetPanOffset = ImVec2(startPan.x - x,startPan.y - y);
-    }
+    ImVec2 screenZoom;
+    GetScreenZoom(screenZoom.x, screenZoom.y);
+    targetPanOffset = {
+                        targetPanOffset.x + x / screenZoom.x,
+                        targetPanOffset.y + y / screenZoom.y
+                        }; 
 }
 
 void ViewPort2D::StopPanning(bool savePan)
 {
     isPanning = false;
-    if (savePan)
-    {
-        offset = ImVec2(offset.x + targetPanOffset.x, offset.y + targetPanOffset.y);
-    }
-    panOffset = ImVec2(panOffset.x - targetPanOffset.x,panOffset.y- targetPanOffset.y);
-    targetPanOffset = ImVec2(0.0f,0.0f);
+    //if (savePan)
+    //{
+    //    offset = ImVec2(offset.x + targetPanOffset.x, offset.y + targetPanOffset.y);
+    //}
+    //panOffset = ImVec2(panOffset.x - targetPanOffset.x,panOffset.y- targetPanOffset.y);
+    //targetPanOffset = ImVec2(0.0f,0.0f);
 }
 
 bool ViewPort2D::IsPanning() const
@@ -44,32 +50,45 @@ bool ViewPort2D::IsPanning() const
     return isPanning;
 }
 
-ImVec2 ViewPort2D::GetOffset() const
+ImVec2 ViewPort2D::GetDisplayedOffset() const
 {
-    return ImVec2(offset.x + panOffset.x, offset.y + panOffset.y);
+    return {displayedOffset.x, displayedOffset.y};
 }
 
 void ViewPort2D::Tick(float deltaTime)
 {
-    zoom = AnoukhFun::Damp(zoom, targetZoom, 0.0f, deltaTime);
+    displayedZoom = AnoukhFun::Damp(displayedZoom, targetZoom, 0.0f, deltaTime);
     //const glm::vec2 vPanOffset = glm::vec2(panOffset.x, panOffset.y);
     //const glm::vec2 vTargetPanOffset = glm::vec2(targetPanOffset.x, targetPanOffset.y);
     //const auto newOffset = AnoukhFun::Damp<glm::vec2>( vPanOffset , vTargetPanOffset, 0.00000001f, deltaTime);
-    panOffset = ImVec2(targetPanOffset.x, targetPanOffset.y);
+    displayedOffset = {targetPanOffset.x, targetPanOffset.y};
+}
+
+void ViewPort2D::RenderUI()
+{
+    ViewPortBase::RenderUI();
+    const std::string name = ("offsets %s" + std::string(GetGuiName()));
+    ImGui::Begin(name.c_str());
+    ImVec2 screenToTextPos;
+    ScreenToTexture(ImGui::GetMousePos().x, ImGui::GetMousePos().y, screenToTextPos.x, screenToTextPos.y);
+    ImGui::Text("dOffset: %f, %f", displayedOffset.x, displayedOffset.y);
+    ImGui::Text("tOffset: %f, %f", targetPanOffset.x, targetPanOffset.y);
+    ImGui::Text("TexturePos: %f, %f", screenToTextPos.x, screenToTextPos.y);
+    ImGui::End();
 }
 
 void ViewPort2D::ScrollCallBackEvent(GLFWwindow* window, bool guiWantToCapture, double xoffset, double yoffset)
 {
     if (IsWindowHovered())
     {
-        SetZoom(GetZoom() * (1.0f + static_cast<float>(yoffset)*0.1f));
+        SetZoom(GetDisplayedZoom() * (1.0f + static_cast<float>(yoffset)*0.1f));
         ImGui::SetWindowFocus(GetGuiName());
     }
 }
 
 void ViewPort2D::MouseButtonCallBackEvent(GLFWwindow* window, bool guiWantToCapture, int button, int action, int mods)
 {
-    if(button == GLFW_MOUSE_BUTTON_MIDDLE)
+    if(button == GLFW_MOUSE_BUTTON_RIGHT)
     {
         if(action == GLFW_PRESS)
         {
@@ -95,8 +114,12 @@ void ViewPort2D::MousePositionCallBackEvent(GLFWwindow* window, bool guiWantToCa
 {
     if(IsPanning())
     {
-        ImVec2 mousePos = ImGui::GetMousePos();
-        SetPanOffset(mousePos.x, mousePos.y);
+        ImVec2 mousePos = {static_cast<float>(xPos),static_cast<float>(yPos)};
+        ApplyPanning(mousePos.x - lastMousePos.x, mousePos.y - lastMousePos.y);
+        lastMousePos = mousePos;
+        
+        //SetPanOffset(mousePos.x, mousePos.y);
+        //->targetPanOffset = ImVec2(startPan.x - x,startPan.y - y);
         ImGui::SetWindowFocus(GetGuiName());
     }
 }

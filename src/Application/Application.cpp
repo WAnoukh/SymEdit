@@ -95,7 +95,7 @@ int Application::Run() {
 	}
 	float lastFrame = 0.0f;
 
-	activeTexture.CreateBlankTexture(1600, 1300, GL_RGB);
+	activeTexture.CreateBlankTexture(TEXTURE_W, TEXTURE_H, GL_RGB);
 	activeTexture.GenerateOpenGlTexture();
 	activeTexture.SendDataToOpenGl();
 	
